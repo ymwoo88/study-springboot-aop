@@ -5,6 +5,7 @@ import hello.aop.order.OrderService;
 import hello.aop.order.aop.AspectV1;
 import hello.aop.order.aop.AspectV2;
 import hello.aop.order.aop.AspectV3;
+import hello.aop.order.aop.AspectV4Pointcut;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,8 @@ import org.springframework.context.annotation.Import;
 @SpringBootTest
 //@Import(AspectV1.class)
 //@Import(AspectV2.class)
-@Import(AspectV3.class)
+//@Import(AspectV3.class)
+@Import(AspectV4Pointcut.class)
 /*
     @Aspect 는 표식이지 컴포넌트 스캔이 되는 것은 아니다, 따라서 AspectV1을 AOP로 사용하려면 스프링 빈으로 등록해야한다.
     스프링 빈으로 등록하는 방법은 다음과 같다
