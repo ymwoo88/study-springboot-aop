@@ -130,4 +130,87 @@ public class ExecutionTest {
         pointcut.setExpression("execution(* hello.aop..*.*(..))");
         Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
     }
+
+    @Test
+    void typeExactMatch() {
+        /*
+            접근제어자 : 생략
+            반환타입 : *
+            선언타입 : * 끝에 사용
+            메서드 이름 : *
+            파라미터 : (..)
+            예외?: 생략
+
+
+            class 명으로 매칭이 가능하다
+         */
+        pointcut.setExpression("execution(* hello.aop.member.MemberServiceImpl.*(..))");
+        Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+
+    @Test
+    void typeMatchSuperType() {
+        /*
+            접근제어자 : 생략
+            반환타입 : *
+            선언타입 : * 끝에 사용
+            메서드 이름 : *
+            파라미터 : (..)
+            예외?: 생략
+
+
+            부모의 타입으로도 매칭이 가능하다
+            excution 에서는 MemberService 처럼 부모 타입을 선언해도 그 자식 타입은 매칭된다. 다형성이 포용된다는 것을 알수 있다.
+            단! 자식클래스에서 부모에 없는 메소드로는 부모타입으로는 매칭이 안된다.
+            예를들어 인터페이스에 없고 자식클래스에만 있는 other() 이런 메소로 부모타입으로 매칭하면 매칭이 안될 것이다.
+         */
+        pointcut.setExpression("execution(* hello.aop.member.MemberService.*(..))");
+        Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+
+    // String 타입의 파라미터를 허용
+    @Test
+    void argsMatch() {
+        pointcut.setExpression("execution(* *(String))");
+        Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+
+    // 파라미터가 없응 경우
+    @Test
+    void noArgsMatch() {
+        pointcut.setExpression("execution(* *())");
+        Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isFalse();
+    }
+
+    // 정확히 하나의 파라미터만 허용, 대신 모든타입 허용
+    @Test
+    void argsMatchStart() {
+        pointcut.setExpression("execution(* *(*))");
+        Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+
+    // 모든 것을 허용
+    @Test
+    void argsMatchAll() {
+        pointcut.setExpression("execution(* *(..))");
+        Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+
+    // String이 맨처음으로오고 나머지는 모든것을 매칭
+    @Test
+    void argsMatchComplex() {
+        pointcut.setExpression("execution(* *(String, ..))");
+        Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+
+    /*
+        excution 파라미터 매칭 규칙은 다음과 같다.
+            (스트링) 정확하게 스프링타입 파라미터
+            () 파라미터가 없어야 한다.
+            (*) 정확히 하나의 파라미터, 단 모든 타입을 허용한다.
+            (*, *) 정확히 두 개의 파라미터, 단 모든 타입을 허용한다.
+            (..) 숫자와 무관하게 모든 파라미터, 모든 타입을 허용한다. 참고로 파라미터가 없어도 된다. 0..*로 이해하면 된다.
+            (스트링, ..) 스트링 타입으로 시작해야한다. 숫자와 무관하게 모든 파라미터, 모든 타입을 허용한다.
+                예) (스트링, (스트링, xxx), (스트링, xxx, xxx) 허용
+     */
 }
